@@ -1,0 +1,1079 @@
+================================================================================
+AI-POWERED VISION ASSISTANCE FOR VISUALLY CHALLENGED - FULL CODE DOCUMENTATION
+================================================================================
+
+PROJECT STRUCTURE:
+==================
+
+Final code0/
+│
+├── Python Files:
+│   ├── GUI_main.py                    (Main GUI Application Entry Point)
+│   ├── Login.py                       (User Login Interface)
+│   ├── Registration.py                (User Registration Interface)
+│   ├── gui_master.py                  (Master Control GUI)
+│   ├── cam.py                         (Person Detection & Distance Calculation)
+│   ├── object.py                      (Generic Object Detection with Voice)
+│   └── mail.py                        (Email Notification System)
+│
+├── Data Files:
+│   ├── evaluation.db                  (SQLite Database for User Registration)
+│   ├── face.db                        (Face Recognition Database)
+│   ├── coco.names                     (Object Class Names)
+│   ├── trainingdata.yml               (Face Recognition Training Data)
+│   └── ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt (Model Config)
+│
+├── Model Files:
+│   ├── haarcascade_frontalface_default.xml (Face Detection Cascade)
+│   └── frozen_inference_graph.pb      (Object Detection Model Weights)
+│
+├── Media Files:
+│   ├── Images: 1.jpg, 2.jpg, 3.jpg, 11.jpg, 22.jpg, 23.jpeg, 44.jpg, 
+│   │          face.jpg, reg1.jpg, sample.jpg, oc1.jpg, oc2.jpg, oc3.jpg
+│   ├── Audio: 1.mp3, 2.mp3, 3.mp3, audio.mp3, distance.mp3, name.mp3, 
+│   │         output.mp3, person_info.mp3
+│   └── Video: video.mp4
+│
+└── Directories:
+    ├── facesData/                     (Face Data Storage - Empty)
+    └── __pycache__/                   (Python Cache Files)
+        └── object_raspberry.cpython-37.pyc
+
+================================================================================
+
+FILE CONTENTS:
+==============
+
+================================================================================
+1. GUI_main.py - Main Application Entry Point
+================================================================================
+
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Jan 29 14:27:05 2021
+
+@author: om
+"""
+
+import tkinter as tk
+from tkinter import ttk, LEFT, END
+from PIL import Image, ImageTk
+from tkinter.filedialog import askopenfilename
+from tkinter import messagebox as ms
+import cv2
+import sqlite3
+import os
+import numpy as np
+import time
+
+#import video_capture as value
+#import lecture_details as detail_data
+#import video_second as video1
+
+#import lecture_video  as video
+
+global fn
+fn = ""
+##############################################+=============================================================
+root = tk.Tk()
+root.configure(background="brown")
+# root.geometry("1300x700")
+
+
+w, h = root.winfo_screenwidth(), root.winfo_screenheight()
+root.geometry("%dx%d+0+0" % (w, h))
+root.title("..AI-Powered Vision Assistance for Visually Challenged..")
+
+# 43
+
+# ++++++++++++++++++++++++++++++++++++++++++++
+#####For background Image
+image2 = Image.open('22.jpg')
+image2 = image2.resize((1650, 1100), Image.LANCZOS)
+
+background_image = ImageTk.PhotoImage(image2)
+
+background_label = tk.Label(root, image=background_image)
+
+background_label.image = background_image
+
+background_label.place(x=0, y=0)  # , relwidth=1, relheight=1)
+#
+label_l1 = tk.Label(root, text="..AI-Powered Vision Assistance for Visually Challenged..",font=("Algerian", 30, 'bold'),
+                    background="#AED6F1", fg="black", width=60, height=2)
+label_l1.place(x=0, y=0)
+
+#T1.tag_configure("center", justify='center')
+#T1.tag_add("center", 1.0, "end")
+
+################################$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#def clear_img():
+#    img11 = tk.Label(root, background='bisque2')
+#    img11.place(x=0, y=0)
+
+
+#################################################################$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+################################$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+# def cap_video():
+    
+#     video1.upload()
+#     #from subprocess import call
+#     #call(['python','video_second.py'])
+
+def reg():
+    from subprocess import call
+    call(["python","Registration.py"])
+
+def log():
+    from subprocess import call
+    call(["python","Login.py"])
+    
+def window():
+  root.destroy()
+
+
+button1 = tk.Button(root, text="Login", command=log, width=14, height=1,font=('times', 20, ' bold '), bg="#AED6F1", fg="black")
+button1.place(x=200, y=200)
+
+button2 = tk.Button(root, text="Register",command=reg,width=14, height=1,font=('times', 20, ' bold '), bg="#AED6F1", fg="black")
+button2.place(x=200, y=280)
+
+button3 = tk.Button(root, text="Exit",command=window,width=14, height=1,font=('times', 20, ' bold '), bg="#AED6F1", fg="black")
+button3.place(x=200, y=370)
+
+root.mainloop()
+
+================================================================================
+2. Login.py - User Authentication Interface
+================================================================================
+
+import tkinter as tk
+from tkinter import ttk, LEFT, END
+from tkinter import messagebox as ms
+import sqlite3
+from PIL import Image, ImageTk
+import re
+import cv2
+
+##############################################+=============================================================
+root = tk.Tk()
+root.configure(background="black")
+root.geometry("700x700")
+
+
+w, h = root.winfo_screenwidth(), root.winfo_screenheight()
+root.geometry("700x700")
+root.title("Login Form")
+
+
+
+
+username = tk.StringVar()
+password = tk.StringVar()
+        
+
+# ++++++++++++++++++++++++++++++++++++++++++++
+#####For background Image
+image2 = Image.open('1.jpg')
+image2 = image2.resize((700,700), Image.LANCZOS)
+
+background_image = ImageTk.PhotoImage(image2)
+
+background_label = tk.Label(root, image=background_image)
+
+background_label.image = background_image
+
+background_label.place(x=0, y=0)  # , relwidth=1, relheight=1)
+
+
+
+def registration():
+    from subprocess import call
+    call(["python","registration.py"])
+    root.destroy()
+
+def login():
+        # Establish Connection
+
+    with sqlite3.connect('evaluation.db') as db:
+         c = db.cursor()
+
+        # Find user If there is any take proper action
+         db = sqlite3.connect('evaluation.db')
+         cursor = db.cursor()
+         cursor.execute("CREATE TABLE IF NOT EXISTS registration"
+                           "(Fullname TEXT, address TEXT, username TEXT, Email TEXT, Phoneno TEXT,Gender TEXT,age TEXT , password TEXT)")
+         db.commit()
+         find_entry = ('SELECT * FROM registration WHERE username = ? and password = ?')
+         c.execute(find_entry, [(username.get()), (password.get())])
+         result = c.fetchall()
+
+         if result:
+            msg = ""
+            # self.logf.pack_forget()
+            # self.head['text'] = self.username.get() + '\n Loged In'
+            # msg = self.head['text']
+            #            self.head['pady'] = 150
+            print(msg)
+            ms.showinfo("messege", "LogIn sucessfully")
+            # ===========================================
+            root.destroy()
+
+            from subprocess import call
+            call(["python","gui_master.py"])
+            # ================================================
+         else:
+           ms.showerror('Oops!', 'Username Or Password Did Not Found/Match.')
+
+
+l1 = tk.Label(root, text="LOGIN HERE", font=("Times new roman", 30, "bold"), bg="#192841", fg="white")
+l1.place(x=250, y=150)
+
+# that is for label1 registration
+
+l2 = tk.Label(root, text="Username", width=12, font=("Times new roman", 20, "bold"), bg="snow")
+l2.place(x=140, y=250)
+t1 = tk.Entry(root, textvar=username, width=15, font=('', 20))
+t1.place(x=370, y=250)
+# that is for label 2 (full name)
+
+
+l3 = tk.Label(root, text="Password", width=12, font=("Times new roman", 20, "bold"), bg="snow")
+l3.place(x=140, y=300)
+t2 = tk.Entry(root, textvar=password, width=15, font=('', 20),show="*")
+t2.place(x=370, y=300)
+# that is for label 3(address)
+        
+
+    
+        
+
+
+
+btn_log=tk.Button(root,text="Login",command=login,width=12,font=("Times new roman", 18, "bold"),bg="green",fg="white")
+btn_log.grid(row=3,column=1,pady=10)
+btn_log.place(x=400 , y=400 )
+btn_reg=tk.Button(root,text="Register",command=registration,width=12,font=("Times new roman", 18, "bold"),bg="red",fg="white")
+btn_reg.grid(row=3,column=0,pady=10)
+btn_reg.place(x=170 , y=400 )   
+        
+    
+
+root.mainloop()
+
+================================================================================
+3. Registration.py - User Registration Interface
+================================================================================
+
+import tkinter as tk
+# from tkinter import *
+from tkinter import messagebox as ms
+import sqlite3
+from PIL import Image, ImageTk
+import re
+import random
+import os
+import cv2
+
+
+window = tk.Tk()
+window.geometry("700x700")
+window.title("REGISTRATION FORM")
+window.configure(background="grey")
+
+Fullname = tk.StringVar()
+address = tk.StringVar()
+username = tk.StringVar()
+Email = tk.StringVar()
+Phoneno = tk.IntVar()
+var = tk.IntVar()
+age = tk.IntVar()
+password = tk.StringVar()
+password1 = tk.StringVar()
+
+value = random.randint(1, 1000)
+print(value)
+
+# database code
+db = sqlite3.connect('evaluation.db')
+cursor = db.cursor()
+cursor.execute("CREATE TABLE IF NOT EXISTS registration"
+               "(Fullname TEXT, address TEXT, username TEXT, Email TEXT, Phoneno TEXT,Gender TEXT,age TEXT , password TEXT)")
+db.commit()
+
+
+
+def password_check(passwd): 
+	
+	SpecialSym =['$', '@', '#', '%'] 
+	val = True
+	
+	if len(passwd) < 6: 
+		print('length should be at least 6') 
+		val = False
+		
+	if len(passwd) > 20: 
+		print('length should be not be greater than 8') 
+		val = False
+		
+	if not any(char.isdigit() for char in passwd): 
+		print('Password should have at least one numeral') 
+		val = False
+		
+	if not any(char.isupper() for char in passwd): 
+		print('Password should have at least one uppercase letter') 
+		val = False
+		
+	if not any(char.islower() for char in passwd): 
+		print('Password should have at least one lowercase letter') 
+		val = False
+		
+	if not any(char in SpecialSym for char in passwd): 
+		print('Password should have at least one of the symbols $@#') 
+		val = False
+	if val: 
+		return val 
+
+def insert():
+    fname = Fullname.get()
+    addr = address.get()
+    un = username.get()
+    email = Email.get()
+    mobile = Phoneno.get()
+    gender = var.get()
+    time = age.get()
+    pwd = password.get()
+    cnpwd = password1.get()
+
+    with sqlite3.connect('evaluation.db') as db:
+        c = db.cursor()
+
+    # Find Existing username if any take proper action
+    find_user = ('SELECT * FROM registration WHERE username = ?')
+    c.execute(find_user, [(username.get())])
+
+    # else:
+    #   ms.showinfo('Success!', 'Account Created Successfully !')
+
+    # to check mail
+    #regex = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
+    regex='^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+    if (re.search(regex, email)):
+        a = True
+    else:
+        a = False
+    # validation
+    if (fname.isdigit() or (fname == "")):
+        ms.showinfo("Message", "please enter valid name")
+    elif (addr == ""):
+        ms.showinfo("Message", "Please Enter Address")
+    elif (email == "") or (a == False):
+        ms.showinfo("Message", "Please Enter valid email")
+    elif((len(str(mobile)))<10 or len(str((mobile)))>10):
+        ms.showinfo("Message", "Please Enter 10 digit mobile number")
+    elif ((time > 100) or (time == 0)):
+        ms.showinfo("Message", "Please Enter valid age")
+    elif (c.fetchall()):
+        ms.showerror('Error!', 'Username Taken Try a Diffrent One.')
+    elif (pwd == ""):
+        ms.showinfo("Message", "Please Enter valid password")
+    elif (var == False):
+        ms.showinfo("Message", "Please Enter gender")
+    elif(pwd=="")or(password_check(pwd))!=True:
+        ms.showinfo("Message", "password must contain atleast 1 Uppercase letter,1 symbol,1 number")
+    elif (pwd != cnpwd):
+        ms.showinfo("Message", "Password Confirm password must be same")
+    else:
+        conn = sqlite3.connect('evaluation.db')
+        with conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                'INSERT INTO registration(Fullname, address, username, Email, Phoneno, Gender, age , password) VALUES(?,?,?,?,?,?,?,?)',
+                (fname, addr, un, email, mobile, gender, time, pwd))
+
+            conn.commit()
+            db.close()
+            ms.showinfo('Success!', 'Account Created Successfully !')
+            # window.destroy()
+            window.destroy()
+            
+            from subprocess import call
+            call(["python", "login.py"])
+
+
+#####################################################################################################################################################
+
+
+
+# assign and define variable
+# def login():
+
+#####For background Image
+image2 = Image.open('44.jpg')
+image2 = image2.resize((700, 700), Image.LANCZOS)
+
+background_image = ImageTk.PhotoImage(image2)
+
+background_label = tk.Label(window, image=background_image)
+
+background_label.image = background_image
+
+background_label.place(x=0, y=0)  # , relwidth=1, relheight=1)
+
+l1 = tk.Label(window, text="Registration Form", font=("Times new roman", 30, "bold"), bg="#192841", fg="white")
+l1.place(x=190, y=50)
+
+# that is for label1 registration
+
+l2 = tk.Label(window, text="Full Name :", width=12, font=("Times new roman", 15, "bold"), bg="snow")
+l2.place(x=130, y=150)
+t1 = tk.Entry(window, textvar=Fullname, width=20, font=('', 15))
+t1.place(x=330, y=150)
+# that is for label 2 (full name)
+
+
+l3 = tk.Label(window, text="Address :", width=12, font=("Times new roman", 15, "bold"), bg="snow")
+l3.place(x=130, y=200)
+t2 = tk.Entry(window, textvar=address, width=20, font=('', 15))
+t2.place(x=330, y=200)
+# that is for label 3(address)
+
+
+# that is for label 4(blood group)
+
+l5 = tk.Label(window, text="E-mail :", width=12, font=("Times new roman", 15, "bold"), bg="snow")
+l5.place(x=130, y=250)
+t4 = tk.Entry(window, textvar=Email, width=20, font=('', 15))
+t4.place(x=330, y=250)
+# that is for email address
+
+l6 = tk.Label(window, text="Phone number :", width=12, font=("Times new roman", 15, "bold"), bg="snow")
+l6.place(x=130, y=300)
+t5 = tk.Entry(window, textvar=Phoneno, width=20, font=('', 15))
+t5.place(x=330, y=300)
+# phone number
+l7 = tk.Label(window, text="Gender :", width=12, font=("Times new roman", 15, "bold"), bg="snow")
+l7.place(x=130, y=350)
+# gender
+tk.Radiobutton(window, text="Male", padx=5, width=5, bg="snow", font=("bold", 15), variable=var, value=1).place(x=330,
+                                                                                                                y=350)
+tk.Radiobutton(window, text="Female", padx=20, width=4, bg="snow", font=("bold", 15), variable=var, value=2).place(
+    x=440, y=350)
+
+l8 = tk.Label(window, text="Age :", width=12, font=("Times new roman", 15, "bold"), bg="snow")
+l8.place(x=130, y=400)
+t6 = tk.Entry(window, textvar=age, width=20, font=('', 15))
+t6.place(x=330, y=400)
+
+l4 = tk.Label(window, text="User Name :", width=12, font=("Times new roman", 15, "bold"), bg="snow")
+l4.place(x=130, y=450)
+t3 = tk.Entry(window, textvar=username, width=20, font=('', 15))
+t3.place(x=330, y=450)
+
+l9 = tk.Label(window, text="Password :", width=12, font=("Times new roman", 15, "bold"), bg="snow")
+l9.place(x=130, y=500)
+t9 = tk.Entry(window, textvar=password, width=20, font=('', 15), show="*")
+t9.place(x=330, y=500)
+
+l10 = tk.Label(window, text="Confirm Password:", width=13, font=("Times new roman", 15, "bold"), bg="snow")
+l10.place(x=130, y=550)
+
+t10 = tk.Entry(window, textvar=password1, width=20, font=('', 15), show="*")
+t10.place(x=330, y=550)
+
+btn = tk.Button(window, text="Register", bg="green",font=("",20),fg="white", width=9, height=1, command=insert)
+btn.place(x=260, y=620)
+# tologin=tk.Button(window , text="Go To Login", bg ="dark green", fg = "white", width=15, height=2, command=login)
+# tologin.place(x=330, y=600)
+window.mainloop()
+
+================================================================================
+4. gui_master.py - Master Control Interface
+================================================================================
+
+
+from tkinter import messagebox as ms
+import sqlite3
+from PIL import ImageTk
+import tkinter as tk
+from PIL import Image, ImageTk
+
+# main Class
+
+
+root = tk.Tk()
+
+#root.configure(background="grey")
+#root.geometry("500x400")
+#root.title("Login")
+
+w, h = root.winfo_screenwidth(), root.winfo_screenheight()
+root.geometry("%dx%d+0+0" % (w, h))
+root.title("..AI-Powered Vision Assistance for Visually Challenged..")
+
+image2 = Image.open('face.jpg')
+image2 = image2.resize((1530, 900), Image.LANCZOS)
+
+background_image = ImageTk.PhotoImage(image2)
+
+background_label = tk.Label(root, image=background_image)
+
+background_label.image = background_image
+
+background_label.place(x=0, y=0)  # , relwidth=1, relheight=1)
+label_l1 = tk.Label(root, text="..AI-Powered Vision Assistance for Visually Challenged.. ",font=("Algerian", 30, 'bold'),
+                    background="#AED6F1", fg="black", width=60, height=2)
+label_l1.place(x=0, y=0)
+
+
+def log():
+    from subprocess import call
+    call(["python","cam.py"])
+
+def obj():
+    from subprocess import call
+    call(["python","object.py"])
+    
+def window():
+  root.destroy()
+
+button1 = tk.Button(root, text="Specific Object Detection", command=log, width=18, height=1,font=('times', 25, ' bold '), bg="#AED6F1", fg="black")
+button1.place(x=900, y=220)
+button1 = tk.Button(root, text="Genric Object Detection", command=obj, width=18, height=1,font=('times', 25, ' bold '), bg="#AED6F1", fg="black")
+button1.place(x=900, y=350)
+
+button2 = tk.Button(root, text="Exit",command=window,width=10, height=1,font=('times', 22, ' bold '), bg="#AED6F1", fg="black")
+button2.place(x=1000, y=470)
+
+root.mainloop()
+
+
+================================================================================
+5. cam.py - Person Detection & Distance Calculation
+================================================================================
+
+
+import numpy as np
+
+import cv2
+from imutils import paths
+import numpy as np
+import imutils
+import cv2
+
+facecascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+cap = cv2.VideoCapture(0)
+
+cap.set(3,640) # set Width
+
+cap.set(4,480) # set Height
+boxes = []
+while True:
+
+   ret, img = cap.read()
+
+   img = cv2.flip(img, 1)
+
+   gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+   
+   gray = cv2.GaussianBlur(gray, (5, 5), 0)
+   edged = cv2.Canny(gray, 35, 125)
+ 
+   faces = facecascade.detectMultiScale(
+
+       gray,
+       
+       
+       scaleFactor=1.2,
+
+       minNeighbors=5,    
+
+       minSize=(20, 20)
+
+   )
+
+   for (x,y,w,h) in faces:
+
+        cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
+        roi_gray = gray[y:y+h, x:x+w]
+        count = len(faces)
+        roi_color = img[y:y+h, x:x+w] 
+        y = y + h
+        print('y=',y)
+        
+        x = x + w
+        print('x=',x)
+        cv2.putText(img,'Y=' + str(y) , (img.shape[1] - 600, img.shape[0] - 50) , cv2.FONT_HERSHEY_SIMPLEX,0.7, (0, 255, 0), 2)
+        cv2.putText(img, 'X=' +  str(x) ,(img.shape[1] - 600, img.shape[0] - 100), cv2.FONT_HERSHEY_SIMPLEX,0.7, (0, 255, 0), 2)
+        
+        length = roi_gray.shape[0]
+        breadth = roi_gray.shape[1]
+        
+        
+        
+        cv2.putText(img,'Object length =' + str(length) , (img.shape[1] - 600, img.shape[0] - 20) , cv2.FONT_HERSHEY_SIMPLEX,0.7, (0, 255, 0), 2)
+        #cv2.putText(img, 'breadth =' +  str(breadth) ,(img.shape[1] - 700, img.shape[0] - 400), cv2.FONT_HERSHEY_SIMPLEX,,0.7, (0, 255, 0), 2)
+        
+        focalLength = 3.85*100
+        
+        Distance = (length * breadth)/focalLength
+        cv2.putText(img,'Distance =' + str(Distance) ,(img.shape[1] - 200, img.shape[0] - 20), cv2.FONT_HERSHEY_SIMPLEX,0.7, (0, 255, 0), 3)
+        cv2.putText(img,'person count =' + str(count) ,(img.shape[1] - 200, img.shape[0] - 100), cv2.FONT_HERSHEY_SIMPLEX,0.7, (0, 255, 0), 3)
+        D = Distance
+        if D<10:
+            s="Person Detected distance approximatly on 104 cm"
+        elif D>10 and D<13:
+            s="Person Detected distance approximatly on 99 cm"
+        elif D>13 and D<15:
+            s="Person Detected distance approximatly on 94 cm"
+        elif D>15 and D<17:
+            s="Person Detected distance approximatly on 84 cm"
+        elif D>17 and D<20:
+            s="Person Detected distance approximatly on 75 cm"
+        elif D>20 and D<25:
+            s="Person Detected distance approximatly on 67 cm"
+        elif D>25 and D<30:
+            s="Person Detected distance approximatly on 59 cm"
+        elif D>30 and D<35:
+            s="Person Detected distance approximatly on 51 cm"
+        elif D>35 and D<40:
+            s="Person Detected distance approximatly on 46 cm"
+        elif D>40 and D<60:
+            s="Person Detected distance approximatly on 40 cm"
+        elif D>60 and D<70:
+            s="Person Detected distance approximatly on 38 cm"
+        elif D>70 and D<80:
+            s="Person Detected distance approximatly on 35 cm"
+        elif D>80 and D<90:
+            s="Person Detected distance approximatly on 34 cm"
+        elif D>90 and D<100:
+            s="Person Detected distance approximatly on 32 cm"
+        elif D>100 and D<120:
+            s="Person Detected distance approximatly on 31 cm"
+        elif D>120 and D<150:
+            s="Person Detected distance approximatly on 30 cm"
+        elif D>150 and D<170:
+            s="Person Detected distance approximatly on 27 cm"
+        elif D>170 and D<190:
+            s="Person Detected distance approximatly on 24 cm"
+        elif D>190 and D<210:
+            s="Person Detected distance approximatly on 21 cm"
+        elif D>210 and D<230:
+            s="Person Detected distance approximatly on 19 cm"
+        elif D>230 and D<250:
+            s="Person Detected distance approximatly on 17 cm"
+        elif D>250 and D<270:
+            s="Person Detected distance approximatly on 14 cm"
+        elif D>270 and D<290:
+            s="Person Detected distance approximatly on 11 cm"
+        elif D>290:
+            s="Person Detected distance approximatly on 9 cm or less"
+            
+        A = s
+        #print(A)
+        cv2.putText(img, str(A) ,(img.shape[1] - 630, img.shape[0] - 400), cv2.FONT_HERSHEY_SIMPLEX,0.7, (0, 255, 0), 2)
+        import datetime
+        now = datetime.datetime.now()
+        B=now.strftime("%Y-%m-%d %H:%M:%S")
+        #print ("Current date and time : ")
+        #print (B)
+        cv2.putText(img, str(B) ,(img.shape[1] - 630, img.shape[0] - 450), cv2.FONT_HERSHEY_SIMPLEX,1, (0, 255, 255), 2)
+        #cv2.putText(frame,TEXT ON VIDEO',(50, 50),font, 1,(0, 255, 255),2,cv2.LINE_4) 
+        cv2.imshow('video',img)
+
+   k = cv2.waitKey(30) & 0xff
+
+   if k == 27: # press 'ESC' to quit
+
+       break
+
+cap.release()
+
+cv2.destroyAllWindows()
+
+================================================================================
+6. object.py - Generic Object Detection with Voice Feedback
+================================================================================
+
+import cv2
+import pygame
+from gtts import gTTS
+import os
+import math
+import tkinter as tk
+from PIL import Image, ImageTk  # Importing Image and ImageTk from PIL
+import tempfile
+
+def pmusic(file):
+    pygame.init()
+    pygame.mixer.init()
+    clock = pygame.time.Clock()
+    pygame.mixer.music.load(file)
+    pygame.mixer.music.play()
+    while pygame.mixer.music.get_busy():
+        clock.tick(1000)
+    pygame.mixer.quit()
+
+def stopmusic():
+    pygame.mixer.music.stop()
+
+def getmixerargs():
+    pygame.mixer.init()
+    freq, size, chan = pygame.mixer.get_init()
+    return freq, size, chan
+
+def initMixer():
+    BUFFER = 4096  # audio buffer size, number of samples since pygame 1.8.
+    FREQ, SIZE, CHAN = getmixerargs()
+    pygame.mixer.init(FREQ, SIZE, CHAN, BUFFER)
+
+thres = 0.5  # threshold to detect object
+
+classNames = []
+classFile = 'coco.names'
+with open(classFile, 'rt') as f:
+    classNames = f.read().rstrip('\n').split('\n')
+
+configPath = 'ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt'
+weightsPath = 'frozen_inference_graph.pb'
+
+net = cv2.dnn_DetectionModel(weightsPath, configPath)
+net.setInputSize(320, 320)
+net.setInputScale(1.0 / 127.5)
+net.setInputMean((127.5, 127.5, 127.5))
+net.setInputSwapRB(True)
+
+def getObjects(img, draw=True, objects=[]):
+    height, width, _ = img.shape
+    center_x = width // 2
+    center_y = height // 2
+
+    classIds, confs, bbox = net.detect(img, confThreshold=thres, nmsThreshold=0.2)
+    print(classIds, bbox)
+    if len(objects) == 0:
+        objects = classNames
+    objectInfo = []
+    if len(classIds) != 0:
+        for classId, confidence, box in zip(classIds.flatten(), confs.flatten(), bbox):
+            className = classNames[classId - 1]
+            if className in objects:
+                objectInfo.append([box, className])
+
+                obj_center_x = (box[0] + box[2]) // 2
+                obj_center_y = (box[1] + box[3]) // 2
+                dx = obj_center_x - center_x
+                dy = obj_center_y - center_y
+                distance = math.sqrt(dx ** 2 + dy ** 2)
+                angle = math.atan2(dy, dx) * 180 / math.pi
+
+                if draw:
+                    cv2.rectangle(img, box, color=(0, 255, 0), thickness=2)
+                    cv2.putText(img, className.upper(), (box[0] + 10, box[1] + 30), cv2.FONT_HERSHEY_COMPLEX, 1,
+                                (0, 255, 0), 2)
+                    cv2.putText(img, str(round(confidence * 100, 2)), (box[0] + 300, box[1] + 30),
+                                cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2)
+
+                    info_text = f"{className} is at a distance of {distance:.2f} pixels, "
+                    if angle < -90:
+                        info_text += "to your top left."
+                    elif -90 <= angle < -45:
+                        info_text += "to your left."
+                    elif -45 <= angle < 45:
+                        info_text += "in front of you."
+                    elif 45 <= angle < 90:
+                        info_text += "to your right."
+                    else:
+                        info_text += "to your top right."
+
+                    # Save TTS audio to a temporary file
+                    with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_audio_file:
+                        tts = gTTS(text=info_text, lang='en', slow=False)
+                        tts.save(temp_audio_file.name)
+                        temp_audio_name = temp_audio_file.name  # Store the file name
+
+                    pmusic(temp_audio_name)
+                    os.remove(temp_audio_name)  # Clean up the temp file after playback
+
+                    # Display direction in GUI
+                    direction_label.config(text=f"Direction: {info_text}")
+
+    return img, objectInfo
+
+def update_video_feed():
+    _, frame = cap.read()
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    frame, _ = getObjects(frame)
+    img = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+    img = cv2.resize(img, (640, 480))
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    
+    # Convert to ImageTk format
+    photo = ImageTk.PhotoImage(image=Image.fromarray(img))
+    display_label.imgtk = photo
+    display_label.configure(image=photo)
+    
+    # Check for 'q' key press to exit
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        cap.release()
+        cv2.destroyAllWindows()
+        root.destroy()
+    else:
+        display_label.after(10, update_video_feed)
+
+if __name__ == "__main__":
+    cap = cv2.VideoCapture(0)
+    cap.set(3, 640)
+    cap.set(4, 480)
+
+    root = tk.Tk()
+    root.title("Object Detection")
+    
+    display_label = tk.Label(root)
+    display_label.pack()
+
+    direction_label = tk.Label(root, text="Direction: ")
+    direction_label.pack()
+
+    update_video_feed()
+    root.mainloop()
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+
+================================================================================
+7. mail.py - Email Notification System
+================================================================================
+
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Jan 10 17:23:18 2023
+
+@author: svmah
+"""
+
+import smtplib
+from email.message import EmailMessage
+
+SENDER_EMAIL = "svm892073@gmail.com"
+APP_PASSWORD = "xjpbqxdhiywmtuqp"
+
+
+print("Mail Start")
+msg = EmailMessage()
+msg['Subject'] = "Garbage And Spit Detection"
+msg['From'] = SENDER_EMAIL
+msg['To'] = "pragati.sct@gmail.com"
+msg.set_content('Garbage and spit detected')
+
+   
+
+
+# with open('D:/bitmap/100%-Face Attendance with Excel Sheet/100%-Face Attendance with Excel Sheet/pandas_to_excel.xls', 'rb') as f:
+#         file_data = f.read()
+# msg.add_attachment(file_data, maintype="application", subtype="vnd.ms-excel", filename='D:/bitmap/100%-Face Attendance with Excel Sheet/100%-Face Attendance with Excel Sheet/pandas_to_excel.xls')
+
+with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+        smtp.login(SENDER_EMAIL, APP_PASSWORD)
+        smtp.send_message(msg)
+        print("Mail send successfully")
+
+
+================================================================================
+8. coco.names - Object Detection Class Names (COCO Dataset)
+================================================================================
+
+person
+bicycle
+car
+motorcycle
+airplane
+bus
+train
+truck
+boat
+traffic light
+fire hydrant
+street sign
+stop sign
+parking meter
+bench
+bird
+cat
+dog
+horse
+sheep
+cow
+elephant
+bear
+zebra
+giraffe
+hat
+backpack
+umbrella
+shoe
+eye glasses
+handbag
+tie
+suitcase
+frisbee
+skis
+snowboard
+sports ball
+kite
+baseball bat
+baseball glove
+skateboard
+surfboard
+tennis racket
+bottle
+plate
+wine glass
+cup
+fork
+knife
+spoon
+bowl
+banana
+apple
+sandwich
+orange
+broccoli
+carrot
+hot dog
+pizza
+donut
+cake
+chair
+couch
+potted plant
+bed
+mirror
+dining table
+window
+desk
+toilet
+door
+tv
+laptop
+mouse
+remote
+keyboard
+cell phone
+microwave
+oven
+toaster
+sink
+refrigerator
+blender
+book
+clock
+vase
+scissors
+teddy bear
+hair drier
+toothbrush
+hair brush
+
+================================================================================
+
+FEATURES SUMMARY:
+=================
+
+1. USER AUTHENTICATION
+   - User registration with validation
+   - Login system with database verification
+   - Password security with special character requirements
+   - Email validation
+   - Age and phone number validation
+
+2. PERSON DETECTION & DISTANCE CALCULATION
+   - Face detection using Haar Cascade
+   - Real-time distance calculation using focal length
+   - Person counting
+   - X, Y coordinate display
+   - Timestamp overlay
+   - Distance ranges from 9 cm to 104 cm
+
+3. GENERIC OBJECT DETECTION
+   - 91 different object classes detection (COCO dataset)
+   - Voice feedback using Google Text-to-Speech (gTTS)
+   - Directional guidance (left, right, front, top-left, top-right)
+   - Distance calculation in pixels
+   - Real-time video feed with GUI
+   - Confidence score display
+
+4. DATABASE
+   - SQLite database for user management
+   - Table: registration
+   - Fields: Fullname, address, username, Email, Phoneno, Gender, age, password
+
+5. VISUAL INTERFACE
+   - Multiple customized GUI screens
+   - Background images for each interface
+   - Color-coded buttons
+   - Responsive design
+
+6. EMAIL NOTIFICATION
+   - SMTP integration
+   - Automated alert system
+
+================================================================================
+
+DEPENDENCIES REQUIRED:
+======================
+
+- tkinter (GUI)
+- PIL (Pillow - Image processing)
+- cv2 (OpenCV - Computer Vision)
+- sqlite3 (Database)
+- numpy (Numerical operations)
+- imutils (Image utilities)
+- pygame (Audio playback)
+- gtts (Google Text-to-Speech)
+- smtplib (Email)
+- re (Regular expressions)
+- random (Random number generation)
+- os (Operating system interface)
+- math (Mathematical operations)
+- datetime (Date and time)
+- tempfile (Temporary files)
+
+================================================================================
+
+INSTALLATION COMMANDS:
+======================
+
+pip install opencv-python
+pip install opencv-contrib-python
+pip install pillow
+pip install numpy
+pip install imutils
+pip install pygame
+pip install gtts
+pip install email
+
+================================================================================
+
+HOW TO RUN:
+===========
+
+1. Install all dependencies listed above
+2. Ensure all image files (1.jpg, 22.jpg, 44.jpg, face.jpg) are present
+3. Ensure model files are present:
+   - haarcascade_frontalface_default.xml
+   - frozen_inference_graph.pb
+   - ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt
+   - coco.names
+4. Run: python GUI_main.py
+5. Register a new user or login with existing credentials
+6. Choose detection mode:
+   - Specific Object Detection (Person detection with distance)
+   - Generic Object Detection (91 object classes with voice)
+
+================================================================================
+END OF DOCUMENTATION
+================================================================================
